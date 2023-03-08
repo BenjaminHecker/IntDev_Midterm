@@ -6,6 +6,7 @@ public class Level : MonoBehaviour
 {
     [SerializeField] private float parallaxIncrement = 0.1f;
     [SerializeField] private GameObject prefab;
+    [SerializeField] private Vector2 cellSize;
     [SerializeField] private Sprite[] segments;
 
     private List<GameObject> layers = new List<GameObject>();
@@ -16,8 +17,18 @@ public class Level : MonoBehaviour
         {
             GameObject go = Instantiate(prefab, transform);
             go.GetComponent<SpriteRenderer>().sprite = segments[i];
-            go.GetComponent<Parallax>().parallaxEffect = (i + 1) * parallaxIncrement;
+            go.GetComponent<Parallax>().Setup((i + 1) * parallaxIncrement, cellSize);
             layers.Add(go);
         }
     }
+
+#if UNITY_EDITOR
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireCube(transform.position, cellSize);
+    }
+
+#endif
 }

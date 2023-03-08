@@ -253,6 +253,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   parallaxIncrement: 0.1
   prefab: {fileID: 4919231569438626373, guid: abcd289919c3ee145bf048f309f807b1, type: 3}
+  cellSize: {x: 4, y: 4}
   segments:
   - {fileID: 21300000, guid: 9feddf765de6f9d45a85e5f6051d85b4, type: 3}
   - {fileID: 21300000, guid: fa212f27234deff4ebf1df2cf8de3bec, type: 3}
