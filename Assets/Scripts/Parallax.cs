@@ -6,8 +6,8 @@ public class Parallax : MonoBehaviour
 {
     public float parallaxEffect;
 
+    [HideInInspector] public Vector2 offset = Vector2.zero;
     private Vector2 startOffset = Vector2.zero;
-    private Vector2 offset = Vector2.zero;
     private Vector2 cellSize;
 
     private void Start()

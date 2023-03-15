@@ -10,7 +10,7 @@ public class Movement : MonoBehaviour
     [SerializeField] private float acceleration = 10f;
     [SerializeField] private float drag = 3f;
 
-    private Vector2 velocity = Vector2.zero;
+    public static Vector2 velocity = Vector2.zero;
     private bool run = true;
 
     public void ToggleEnable(bool enable)

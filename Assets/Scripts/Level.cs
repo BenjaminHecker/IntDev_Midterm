@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Level : MonoBehaviour
 {
-    [SerializeField] private float parallaxIncrement = 0.1f;
     [SerializeField] private GameObject prefab;
     [SerializeField] private Vector2 cellSize;
     [SerializeField] private Sprite[] segments;
@@ -23,7 +22,7 @@ public class Level : MonoBehaviour
     }
     private List<Layer> layers = new List<Layer>();
 
-    private void Awake()
+    public void Setup()
     {
         float height = Camera.main.orthographicSize * 2;
         float width = height * Camera.main.aspect;
@@ -43,7 +42,7 @@ public class Level : MonoBehaviour
                 {
                     GameObject go = Instantiate(prefab, transform.position + new Vector3(x, y), Quaternion.identity, transform);
                     go.GetComponent<SpriteRenderer>().sprite = segments[i];
-                    go.GetComponent<Parallax>().Setup((i + 1) * parallaxIncrement, cellSize);
+                    go.GetComponent<Parallax>().Setup((i + 1) * GameManager.ParallaxIncrement, cellSize);
                     layer.items.Add(go);
                 }
             }
@@ -52,13 +51,31 @@ public class Level : MonoBehaviour
         }
     }
 
+    public void RandomizeOffsets()
+    {
+        float range = segments.Length * 100f;
+        Vector2 randomOffset = new Vector2(Random.Range(-range, range), Random.Range(-range, range));
+
+        foreach (Layer layer in layers)
+        {
+            foreach (GameObject go in layer.items)
+            {
+                Parallax parallax = go.GetComponent<Parallax>();
+                parallax.offset = randomOffset * parallax.parallaxEffect;
+            }
+        }
+
+        if (IsAligned())
+            RandomizeOffsets();
+    }
+
     public bool IsAligned()
     {
         foreach (Layer layer in layers)
         {
             Vector2 offset = layer.GetOffset();
 
-            if (offset.magnitude > 0.3f)
+            if (offset.magnitude > GameManager.AlignmentThreshold)
                 return false;
         }
 
