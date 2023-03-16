@@ -6,7 +6,8 @@ public class Parallax : MonoBehaviour
 {
     public float parallaxEffect;
 
-    [SerializeField] private float successDelay = 1f;
+    [SerializeField] private float successAnimationTime = 1f;
+    [SerializeField] private AnimationCurve successAnimationCurve;
 
     [HideInInspector] public Vector2 offset = Vector2.zero;
     private Vector2 startOffset = Vector2.zero;
@@ -54,24 +55,25 @@ public class Parallax : MonoBehaviour
         return Movement.origin * parallaxEffect + offset;
     }
 
-    public void TriggerSuccess()
+    public float TriggerSuccess()
     {
         StartCoroutine(SuccessRoutine());
+        return successAnimationTime;
     }
 
     private IEnumerator SuccessRoutine()
     {
-        float successTimer = 0f;
+        float successAnimTimer = 0f;
         Vector2 originalOffset = offset;
         Vector2 targetOffset = -Movement.origin * parallaxEffect;
 
-        while (successTimer < successDelay)
+        while (successAnimTimer < successAnimationTime)
         {
-            float ratio = Mathf.Pow(successTimer / successDelay, 10);
-            offset = Vector2.Lerp(originalOffset, targetOffset, ratio);
+            float ratio = successAnimationCurve.Evaluate(successAnimTimer / successAnimationTime);
+            offset = Vector2.LerpUnclamped(originalOffset, targetOffset, ratio);
             transform.position = Movement.origin * parallaxEffect + offset + startOffset;
 
-            successTimer += Time.deltaTime;
+            successAnimTimer += Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
     }

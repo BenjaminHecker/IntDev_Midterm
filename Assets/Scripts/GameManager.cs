@@ -13,8 +13,11 @@ public class GameManager : MonoBehaviour
     public static float ParallaxIncrement { get { return instance.parallaxIncrement; } }
     public static float AlignmentThreshold { get { return instance.alignmentThreshold; } }
 
-    [SerializeField] private float successDelay = 1f;
-    private float successTimer = 0f;
+    [SerializeField] private float alignmentDelay = 1f;
+    private float alignmentTimer = 0f;
+
+    [SerializeField] private float successShakeDuration = 0.5f;
+    [SerializeField] private float successShakeMagnitude = 0.5f;
 
     [SerializeField] private Level[] levels;
 
@@ -41,24 +44,23 @@ public class GameManager : MonoBehaviour
 
         if (levels[levelIndex].IsAligned() && Movement.velocity.magnitude < velocityThreshold)
         {
-            if (successTimer >= successDelay)
+            if (alignmentTimer >= alignmentDelay)
             {
                 transitionRoutine = NextLevel();
                 StartCoroutine(transitionRoutine);
             }
             else
-                successTimer += Time.deltaTime;
+                alignmentTimer += Time.deltaTime;
         }
         else
-            successTimer = 0f;
+            alignmentTimer = 0f;
     }
 
     private IEnumerator NextLevel()
     {
         Movement.Stop();
-        TriggerSuccess(levelIndex);
 
-        yield return new WaitForSeconds(1.5f);
+        yield return TriggerSuccess(levelIndex);
 
         HideLevel(levelIndex);
 
@@ -72,10 +74,14 @@ public class GameManager : MonoBehaviour
         transitionRoutine = null;
     }
 
-    private void TriggerSuccess(int index)
+    private IEnumerator TriggerSuccess(int index)
     {
         Level level = levels[index];
-        level.TriggerSuccess();
+        float delay = level.TriggerSuccess();
+        yield return new WaitForSeconds(delay);
+
+        ScreenShake.TriggerShake(successShakeDuration, successShakeMagnitude);
+        yield return new WaitForSeconds(successShakeDuration + 1f);
     }
 
     private void HideLevel(int index)

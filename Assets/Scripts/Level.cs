@@ -86,11 +86,21 @@ public class Level : MonoBehaviour
         return true;
     }
 
-    public void TriggerSuccess()
+    public float TriggerSuccess()
     {
+        float successDelay = 0f;
+
         foreach (Layer layer in layers)
+        {
             foreach (GameObject go in layer.items)
-                go.GetComponent<Parallax>().TriggerSuccess();
+            {
+                float delay = go.GetComponent<Parallax>().TriggerSuccess();
+                if (delay > successDelay)
+                    successDelay = delay;
+            }
+        }
+
+        return successDelay;
     }
 
 #if UNITY_EDITOR
