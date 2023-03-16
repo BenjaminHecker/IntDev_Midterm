@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Level[] levels;
 
     private int levelIndex = 0;
+    private IEnumerator transitionRoutine;
 
     private void Awake()
     {
@@ -35,10 +36,16 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        if (transitionRoutine != null)
+            return;
+
         if (levels[levelIndex].IsAligned() && Movement.velocity.magnitude < velocityThreshold)
         {
             if (successTimer >= successDelay)
-                NextLevel();
+            {
+                transitionRoutine = NextLevel();
+                StartCoroutine(transitionRoutine);
+            }
             else
                 successTimer += Time.deltaTime;
         }
@@ -46,8 +53,13 @@ public class GameManager : MonoBehaviour
             successTimer = 0f;
     }
 
-    private void NextLevel()
+    private IEnumerator NextLevel()
     {
+        Movement.Stop();
+        TriggerSuccess(levelIndex);
+
+        yield return new WaitForSeconds(1.5f);
+
         HideLevel(levelIndex);
 
         levelIndex++;
@@ -55,6 +67,15 @@ public class GameManager : MonoBehaviour
             levelIndex = 0;
 
         ShowLevel(levelIndex);
+        Movement.Startup();
+
+        transitionRoutine = null;
+    }
+
+    private void TriggerSuccess(int index)
+    {
+        Level level = levels[index];
+        level.TriggerSuccess();
     }
 
     private void HideLevel(int index)

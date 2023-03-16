@@ -24,6 +24,9 @@ public class Level : MonoBehaviour
 
     public void Setup()
     {
+        if (layers.Count > 0)
+            return;
+
         float height = Camera.main.orthographicSize * 2;
         float width = height * Camera.main.aspect;
 
@@ -62,6 +65,7 @@ public class Level : MonoBehaviour
             {
                 Parallax parallax = go.GetComponent<Parallax>();
                 parallax.offset = randomOffset * parallax.parallaxEffect;
+                parallax.AdjustOffset();
             }
         }
 
@@ -80,6 +84,13 @@ public class Level : MonoBehaviour
         }
 
         return true;
+    }
+
+    public void TriggerSuccess()
+    {
+        foreach (Layer layer in layers)
+            foreach (GameObject go in layer.items)
+                go.GetComponent<Parallax>().TriggerSuccess();
     }
 
 #if UNITY_EDITOR

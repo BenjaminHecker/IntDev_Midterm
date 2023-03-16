@@ -11,15 +11,17 @@ public class Movement : MonoBehaviour
     [SerializeField] private float drag = 3f;
 
     public static Vector2 velocity = Vector2.zero;
-    private bool run = true;
+    public static bool run = true;
 
-    public void ToggleEnable(bool enable)
+    public static void Startup()
     {
-        run = enable;
+        run = true;
+        velocity = Vector2.zero;
     }
 
-    public void ResetVelocity()
+    public static void Stop()
     {
+        run = false;
         velocity = Vector2.zero;
     }
 

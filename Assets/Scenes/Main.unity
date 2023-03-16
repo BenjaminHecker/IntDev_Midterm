@@ -401,7 +401,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parallaxIncrement: 0.1
-  alignmentThreshold: 0.3
+  alignmentThreshold: 0.4
+  velocityThreshold: 0.01
   successDelay: 1
   levels:
   - {fileID: 1615003327}
