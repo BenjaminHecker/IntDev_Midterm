@@ -44,8 +44,7 @@ public class Level : MonoBehaviour
                 for (float y = startY; y < endY; y += cellSize.y)
                 {
                     GameObject go = Instantiate(prefab, transform.position + new Vector3(x, y), Quaternion.identity, transform);
-                    go.GetComponent<SpriteRenderer>().sprite = segments[i];
-                    go.GetComponent<Parallax>().Setup((i + 1) * GameManager.ParallaxIncrement, cellSize);
+                    go.GetComponent<Parallax>().Setup(segments[i], (i + 1) * GameManager.ParallaxIncrement, cellSize);
                     layer.items.Add(go);
                 }
             }

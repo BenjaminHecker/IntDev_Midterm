@@ -4,18 +4,36 @@ using UnityEngine;
 
 public class Parallax : MonoBehaviour
 {
+    [Header("Movement")]
     public float parallaxEffect;
-
-    [SerializeField] private float successAnimationTime = 1f;
-    [SerializeField] private AnimationCurve successAnimationCurve;
 
     [HideInInspector] public Vector2 offset = Vector2.zero;
     private Vector2 startOffset = Vector2.zero;
     private Vector2 cellSize;
 
-    public void Setup(float parallaxEffect, Vector2 cellSize)
+    [Header("Animation")]
+    [SerializeField] private float stretchMagnitude = 0.2f;
+    [SerializeField] private float stretchAnimationTime = 0.8f;
+    [SerializeField] private AnimationCurve stretchAnimationCurve;
+    [SerializeField] private float snapAnimationTime = 0.2f;
+    [SerializeField] private AnimationCurve snapAnimationCurve;
+
+    [Header("Effects")]
+    [SerializeField] private ParticleSystem trailParticles;
+
+    private Sprite sprite;
+
+    public void Setup(Sprite sprite, float parallaxEffect, Vector2 cellSize)
     {
         startOffset = transform.position;
+
+        this.sprite = sprite;
+        GetComponent<SpriteRenderer>().sprite = sprite;
+
+        ParticleSystemRenderer trailRenderer = trailParticles.GetComponent<ParticleSystemRenderer>();
+        Material trailMat = new Material(trailRenderer.material);
+        trailMat.mainTexture = sprite.texture;
+        trailRenderer.material = trailMat;
 
         this.parallaxEffect = parallaxEffect;
         this.cellSize = cellSize;
@@ -58,23 +76,38 @@ public class Parallax : MonoBehaviour
     public float TriggerSuccess()
     {
         StartCoroutine(SuccessRoutine());
-        return successAnimationTime;
+        return stretchAnimationTime + snapAnimationTime;
     }
 
     private IEnumerator SuccessRoutine()
     {
         float successAnimTimer = 0f;
-        Vector2 originalOffset = offset;
-        Vector2 targetOffset = -Movement.origin * parallaxEffect;
 
-        while (successAnimTimer < successAnimationTime)
+        Vector2 originalPos = transform.position;
+        Vector2 targetPos = startOffset;
+        Vector2 stretchPos = targetPos + (originalPos - targetPos).normalized * stretchMagnitude * parallaxEffect;
+
+        while (successAnimTimer < stretchAnimationTime)
         {
-            float ratio = successAnimationCurve.Evaluate(successAnimTimer / successAnimationTime);
-            offset = Vector2.LerpUnclamped(originalOffset, targetOffset, ratio);
-            transform.position = Movement.origin * parallaxEffect + offset + startOffset;
+            float ratio = stretchAnimationCurve.Evaluate(successAnimTimer / stretchAnimationTime);
+
+            transform.position = Vector2.Lerp(originalPos, stretchPos, ratio);
 
             successAnimTimer += Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
+
+        successAnimTimer = 0f;
+        while (successAnimTimer < snapAnimationTime)
+        {
+            float ratio = snapAnimationCurve.Evaluate(successAnimTimer / snapAnimationTime);
+
+            transform.position = Vector2.Lerp(stretchPos, targetPos, ratio);
+
+            successAnimTimer += Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+
+        transform.position = targetPos;
     }
 }
