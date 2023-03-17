@@ -16,8 +16,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float alignmentDelay = 1f;
     private float alignmentTimer = 0f;
 
-    [SerializeField] private float successShakeDuration = 0.5f;
-    [SerializeField] private float successShakeMagnitude = 0.5f;
+    [SerializeField] private float levelTransitionDelay = 1f;
 
     [SerializeField] private Level[] levels;
 
@@ -80,8 +79,7 @@ public class GameManager : MonoBehaviour
         float delay = level.TriggerSuccess();
         yield return new WaitForSeconds(delay);
 
-        ScreenShake.TriggerShake(successShakeDuration, successShakeMagnitude);
-        yield return new WaitForSeconds(successShakeDuration + 1f);
+        yield return new WaitForSeconds(levelTransitionDelay);
     }
 
     private void HideLevel(int index)

@@ -416,7 +416,7 @@ MonoBehaviour:
   parallaxIncrement: 0.1
   alignmentThreshold: 0.4
   velocityThreshold: 0.01
-  alignmentDelay: 1
+  alignmentDelay: 0.5
   successShakeDuration: 0.05
   successShakeMagnitude: 0.1
   levels:

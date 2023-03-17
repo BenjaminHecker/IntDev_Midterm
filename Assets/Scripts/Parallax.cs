@@ -8,15 +8,22 @@ public class Parallax : MonoBehaviour
     public float parallaxEffect;
 
     [HideInInspector] public Vector2 offset = Vector2.zero;
-    private Vector2 startOffset = Vector2.zero;
+    private Vector2 startPos = Vector2.zero;
     private Vector2 cellSize;
 
     [Header("Animation")]
+    [SerializeField] private float animationDelayFactor = 0.5f;
+
+    [Space]
     [SerializeField] private float stretchMagnitude = 0.2f;
     [SerializeField] private float stretchAnimationTime = 0.8f;
     [SerializeField] private AnimationCurve stretchAnimationCurve;
     [SerializeField] private float snapAnimationTime = 0.2f;
     [SerializeField] private AnimationCurve snapAnimationCurve;
+
+    [Space]
+    [SerializeField] private float shakeDuration = 0.05f;
+    [SerializeField] private float shakeMagnitude = 0.1f;
 
     [Header("Effects")]
     [SerializeField] private ParticleSystem trailParticles;
@@ -25,7 +32,7 @@ public class Parallax : MonoBehaviour
 
     public void Setup(Sprite sprite, float parallaxEffect, Vector2 cellSize)
     {
-        startOffset = transform.position;
+        startPos = transform.position;
 
         this.sprite = sprite;
         GetComponent<SpriteRenderer>().sprite = sprite;
@@ -50,21 +57,21 @@ public class Parallax : MonoBehaviour
         bool withinX = false, withinY = false;
         while (!withinX || !withinY)
         {
-            if (transform.position.x > startOffset.x + cellSize.x / 2f)
+            if (transform.position.x > startPos.x + cellSize.x / 2f)
                 offset.x -= cellSize.x;
-            else if (transform.position.x < startOffset.x - cellSize.x / 2f)
+            else if (transform.position.x < startPos.x - cellSize.x / 2f)
                 offset.x += cellSize.x;
             else
                 withinX = true;
 
-            if (transform.position.y > startOffset.y + cellSize.y / 2f)
+            if (transform.position.y > startPos.y + cellSize.y / 2f)
                 offset.y -= cellSize.y;
-            else if (transform.position.y < startOffset.y - cellSize.y / 2f)
+            else if (transform.position.y < startPos.y - cellSize.y / 2f)
                 offset.y += cellSize.y;
             else
                 withinY = true;
 
-            transform.position = Movement.origin * parallaxEffect + offset + startOffset;
+            transform.position = Movement.origin * parallaxEffect + offset + startPos;
         }
     }
     
@@ -75,16 +82,19 @@ public class Parallax : MonoBehaviour
 
     public float TriggerSuccess()
     {
-        StartCoroutine(SuccessRoutine());
-        return stretchAnimationTime + snapAnimationTime;
+        float delay = startPos.magnitude * animationDelayFactor;
+        StartCoroutine(SuccessRoutine(delay));
+        return delay + stretchAnimationTime + snapAnimationTime + shakeDuration;
     }
 
-    private IEnumerator SuccessRoutine()
+    private IEnumerator SuccessRoutine(float delay)
     {
+        yield return new WaitForSeconds(delay);
+
         float successAnimTimer = 0f;
 
         Vector2 originalPos = transform.position;
-        Vector2 targetPos = startOffset;
+        Vector2 targetPos = startPos;
         Vector2 stretchPos = targetPos + (originalPos - targetPos).normalized * stretchMagnitude * parallaxEffect;
 
         while (successAnimTimer < stretchAnimationTime)
@@ -109,5 +119,7 @@ public class Parallax : MonoBehaviour
         }
 
         transform.position = targetPos;
+
+        ScreenShake.TriggerShake(shakeDuration, shakeMagnitude);
     }
 }
