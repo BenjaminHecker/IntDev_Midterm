@@ -30,6 +30,8 @@ public class GameManager : MonoBehaviour
         else
             Destroy(gameObject);
 
+        Cursor.visible = false;
+
         foreach (Level level in levels)
             level.gameObject.SetActive(false);
 

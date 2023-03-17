@@ -30,11 +30,11 @@ public class Level : MonoBehaviour
         float height = Camera.main.orthographicSize * 2;
         float width = height * Camera.main.aspect;
 
-        float startX = (int) (-width / 2f / cellSize.x - 1) * cellSize.x;
-        float startY = (int) (-height / 2f / cellSize.y - 1) * cellSize.y;
+        float startX = (int) (-width / 2f / cellSize.x) * cellSize.x;
+        float startY = (int) (-height / 2f / cellSize.y) * cellSize.y;
 
-        float endX = width / 2f + cellSize.x;
-        float endY = height / 2f + cellSize.y;
+        float endX = width / 2f + cellSize.x * 0;
+        float endY = height / 2f + cellSize.y * 0;
 
         for (int i = 0; i < segments.Length; i++) {
             Layer layer = new Layer();
