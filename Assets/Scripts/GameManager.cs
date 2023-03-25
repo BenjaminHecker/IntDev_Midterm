@@ -63,13 +63,13 @@ public class GameManager : MonoBehaviour
 
         yield return TriggerSuccess(levelIndex);
 
-        HideLevel(levelIndex);
+        yield return HideLevel(levelIndex);
 
         levelIndex++;
         if (levelIndex >= levels.Length)
             levelIndex = 0;
 
-        ShowLevel(levelIndex);
+        yield return ShowLevel(levelIndex);
         Movement.Startup();
 
         transitionRoutine = null;
@@ -84,17 +84,24 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(levelTransitionDelay);
     }
 
-    private void HideLevel(int index)
+    private IEnumerator HideLevel(int index)
     {
         Level level = levels[index];
+        float delay = level.Hide();
+        yield return new WaitForSeconds(delay);
+
+        yield return new WaitForSeconds(levelTransitionDelay);
+
         level.gameObject.SetActive(false);
     }
 
-    private void ShowLevel(int index)
+    private IEnumerator ShowLevel(int index)
     {
         Level level = levels[index];
         level.gameObject.SetActive(true);
-        level.Setup();
-        level.RandomizeOffsets();
+        float delay = level.Reveal();
+        yield return new WaitForSeconds(delay);
+
+        yield return new WaitForSeconds(levelTransitionDelay);
     }
 }

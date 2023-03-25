@@ -11,7 +11,7 @@ public class Parallax : MonoBehaviour
     private Vector2 startPos = Vector2.zero;
     private Vector2 cellSize;
 
-    [Header("Animation")]
+    [Header("Animations")]
     [SerializeField] private float animationDelayFactor = 0.5f;
 
     [Space]
@@ -22,20 +22,34 @@ public class Parallax : MonoBehaviour
     [SerializeField] private AnimationCurve snapAnimationCurve;
 
     [Space]
+    [SerializeField] private float hideSlideMagnitude = 1f;
+    [SerializeField] private float hideAnimationTime = 0.5f;
+    [SerializeField] private AnimationCurve hideAnimationCurve;
+
+    [Space]
+    [SerializeField] private float revealSlideMagnitude = 1f;
+    [SerializeField] private float revealAnimationTime = 0.5f;
+    [SerializeField] private AnimationCurve revealAnimationCurve;
+
+    [Space]
     [SerializeField] private float shakeDuration = 0.05f;
     [SerializeField] private float shakeMagnitude = 0.1f;
 
     [Header("Effects")]
     [SerializeField] private ParticleSystem trailParticles;
 
-    private Sprite sprite;
+    private SpriteRenderer sRender;
+
+    private void Awake()
+    {
+        sRender = GetComponent<SpriteRenderer>();
+    }
 
     public void Setup(Sprite sprite, float parallaxEffect, Vector2 cellSize)
     {
         startPos = transform.position;
 
-        this.sprite = sprite;
-        GetComponent<SpriteRenderer>().sprite = sprite;
+        sRender.sprite = sprite;
 
         ParticleSystemRenderer trailRenderer = trailParticles.GetComponent<ParticleSystemRenderer>();
         Material trailMat = new Material(trailRenderer.material);
@@ -121,5 +135,50 @@ public class Parallax : MonoBehaviour
         transform.position = targetPos;
 
         ScreenShake.TriggerShake(shakeDuration, shakeMagnitude);
+    }
+
+    public float TriggerHide()
+    {
+        float delay = startPos.magnitude * animationDelayFactor;
+        StartCoroutine(HideRoutine(delay));
+        return delay + hideAnimationTime;
+    }
+
+    private IEnumerator HideRoutine(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        trailParticles.Stop();
+
+        float hideAnimTimer = 0f;
+
+        Vector2 originalPos = transform.position;
+        Vector2 targetPos = originalPos + Random.insideUnitCircle * hideSlideMagnitude * parallaxEffect;
+
+        while (hideAnimTimer < hideAnimationTime)
+        {
+            float ratio = hideAnimationCurve.Evaluate(hideAnimTimer / hideAnimationTime);
+
+            transform.position = Vector2.Lerp(originalPos, targetPos, ratio);
+            sRender.color = Color.Lerp(Color.white, Color.clear, ratio);
+
+            hideAnimTimer += Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+
+        transform.position = targetPos;
+        sRender.color = Color.clear;
+    }
+
+    public float TriggerReveal()
+    {
+        float delay = startPos.magnitude * animationDelayFactor;
+        StartCoroutine(RevealRoutine(delay));
+        return delay + revealAnimationTime;
+    }
+
+    private IEnumerator RevealRoutine(float delay)
+    {
+        yield return new WaitForSeconds(0f);
     }
 }

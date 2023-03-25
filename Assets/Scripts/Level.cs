@@ -102,6 +102,31 @@ public class Level : MonoBehaviour
         return successDelay;
     }
 
+    public float Hide()
+    {
+        float hideDelay = 0f;
+
+        foreach (Layer layer in layers)
+        {
+            foreach (GameObject go in layer.items)
+            {
+                float delay = go.GetComponent<Parallax>().TriggerHide();
+                if (delay > hideDelay)
+                    hideDelay = delay;
+            }
+        }
+
+        return hideDelay;
+    }
+
+    public float Reveal()
+    {
+        Setup();
+        RandomizeOffsets();
+
+        return 1f;
+    }
+
 #if UNITY_EDITOR
 
     private void OnDrawGizmosSelected()
