@@ -12,9 +12,7 @@ public class Parallax : MonoBehaviour
     private Vector2 cellSize;
 
     [Header("Animations")]
-    [SerializeField] private float animationDelayFactor = 0.5f;
-
-    [Space]
+    [SerializeField] private float stretchSnapDelayFactor = 0.5f;
     [SerializeField] private float stretchMagnitude = 0.2f;
     [SerializeField] private float stretchAnimationTime = 0.8f;
     [SerializeField] private AnimationCurve stretchAnimationCurve;
@@ -22,11 +20,13 @@ public class Parallax : MonoBehaviour
     [SerializeField] private AnimationCurve snapAnimationCurve;
 
     [Space]
+    [SerializeField] private float hideDelayFactor = 0.01f;
     [SerializeField] private float hideSlideMagnitude = 1f;
     [SerializeField] private float hideAnimationTime = 0.5f;
     [SerializeField] private AnimationCurve hideAnimationCurve;
 
     [Space]
+    [SerializeField] private float revealDelayFactor = 0.01f;
     [SerializeField] private float revealSlideMagnitude = 1f;
     [SerializeField] private float revealAnimationTime = 0.5f;
     [SerializeField] private AnimationCurve revealAnimationCurve;
@@ -37,6 +37,7 @@ public class Parallax : MonoBehaviour
 
     [Header("Effects")]
     [SerializeField] private ParticleSystem trailParticles;
+    [SerializeField] private Color trailColor;
 
     private SpriteRenderer sRender;
 
@@ -96,7 +97,7 @@ public class Parallax : MonoBehaviour
 
     public float TriggerSuccess()
     {
-        float delay = startPos.magnitude * animationDelayFactor;
+        float delay = transform.position.magnitude * stretchSnapDelayFactor;
         StartCoroutine(SuccessRoutine(delay));
         return delay + stretchAnimationTime + snapAnimationTime + shakeDuration;
     }
@@ -139,21 +140,21 @@ public class Parallax : MonoBehaviour
 
     public float TriggerHide()
     {
-        float delay = startPos.magnitude * animationDelayFactor;
+        float delay = transform.position.magnitude * hideDelayFactor;
         StartCoroutine(HideRoutine(delay));
         return delay + hideAnimationTime;
     }
 
     private IEnumerator HideRoutine(float delay)
     {
-        yield return new WaitForSeconds(delay);
+        ParticleSystem.MainModule trail = trailParticles.main;
 
-        trailParticles.Stop();
+        yield return new WaitForSeconds(delay);
 
         float hideAnimTimer = 0f;
 
         Vector2 originalPos = transform.position;
-        Vector2 targetPos = originalPos + Random.insideUnitCircle * hideSlideMagnitude * parallaxEffect;
+        Vector2 targetPos = originalPos + Random.insideUnitCircle.normalized * hideSlideMagnitude * parallaxEffect;
 
         while (hideAnimTimer < hideAnimationTime)
         {
@@ -161,6 +162,7 @@ public class Parallax : MonoBehaviour
 
             transform.position = Vector2.Lerp(originalPos, targetPos, ratio);
             sRender.color = Color.Lerp(Color.white, Color.clear, ratio);
+            trail.startColor = Color.Lerp(trailColor, Color.clear, ratio);
 
             hideAnimTimer += Time.deltaTime;
             yield return new WaitForEndOfFrame();
@@ -168,17 +170,45 @@ public class Parallax : MonoBehaviour
 
         transform.position = targetPos;
         sRender.color = Color.clear;
+        trail.startColor = Color.clear;
     }
 
     public float TriggerReveal()
     {
-        float delay = startPos.magnitude * animationDelayFactor;
+        AdjustOffset();
+        float delay = transform.position.magnitude * revealDelayFactor;
         StartCoroutine(RevealRoutine(delay));
         return delay + revealAnimationTime;
     }
 
     private IEnumerator RevealRoutine(float delay)
     {
-        yield return new WaitForSeconds(0f);
+        ParticleSystem.MainModule trail = trailParticles.main;
+
+        sRender.color = Color.clear;
+        trail.startColor = Color.clear;
+
+        yield return new WaitForSeconds(delay);
+
+        float revealAnimTimer = 0f;
+
+        Vector2 targetPos = transform.position;
+        Vector2 initialPos = targetPos + Random.insideUnitCircle.normalized * revealSlideMagnitude * parallaxEffect;
+
+        while (revealAnimTimer < revealAnimationTime)
+        {
+            float ratio = revealAnimationCurve.Evaluate(revealAnimTimer / revealAnimationTime);
+
+            transform.position = Vector2.Lerp(initialPos, targetPos, ratio);
+            sRender.color = Color.Lerp(Color.clear, Color.white, ratio);
+            trailColor = Color.Lerp(Color.clear, trailColor, ratio);
+
+            revealAnimTimer += Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+
+        transform.position = targetPos;
+        sRender.color = Color.white;
+        trail.startColor = trailColor;
     }
 }

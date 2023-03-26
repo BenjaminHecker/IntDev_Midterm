@@ -100,7 +100,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   parallaxEffect: 1
   offset: {x: 0, y: 0}
-  animationDelayFactor: 0.05
+  stretchSnapDelayFactor: 0.05
   stretchMagnitude: 5
   stretchAnimationTime: 0.8
   stretchAnimationCurve:
@@ -152,7 +152,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  hideSlideMagnitude: 20
+  hideDelayFactor: 0.05
+  hideSlideMagnitude: 10
   hideAnimationTime: 2
   hideAnimationCurve:
     serializedVersion: 2
@@ -178,8 +179,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  revealSlideMagnitude: 1
-  revealAnimationTime: 0.5
+  revealDelayFactor: 0.05
+  revealSlideMagnitude: 10
+  revealAnimationTime: 2
   revealAnimationCurve:
     serializedVersion: 2
     m_Curve:
@@ -207,6 +209,7 @@ MonoBehaviour:
   shakeDuration: 0.02
   shakeMagnitude: 0.1
   trailParticles: {fileID: 612959165245363497}
+  trailColor: {r: 1, g: 1, b: 1, a: 0.39215687}
 --- !u!1 &9083839296179005868
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,9 +9,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float parallaxIncrement = 0.1f;
     [SerializeField] private float alignmentThreshold = 0.3f;
     [SerializeField] private float velocityThreshold = 0.01f;
+    [SerializeField] private float randomOffsetMin = 20f;
+    [SerializeField] private float randomOffsetMax = 100f;
 
     public static float ParallaxIncrement { get { return instance.parallaxIncrement; } }
     public static float AlignmentThreshold { get { return instance.alignmentThreshold; } }
+    public static float RandomOffsetMin { get { return instance.randomOffsetMin; } }
+    public static float RandomOffsetMax { get { return instance.randomOffsetMax; } }
 
     [SerializeField] private float alignmentDelay = 1f;
     private float alignmentTimer = 0f;
@@ -35,7 +39,17 @@ public class GameManager : MonoBehaviour
         foreach (Level level in levels)
             level.gameObject.SetActive(false);
 
-        ShowLevel(levelIndex);
+        StartCoroutine(StartTutorial());
+    }
+
+    private IEnumerator StartTutorial()
+    {
+        transitionRoutine = ShowLevel(levelIndex);
+        yield return new WaitForSeconds(levelTransitionDelay);
+
+        Movement.Startup();
+        StartCoroutine(transitionRoutine);
+        transitionRoutine = null;
     }
 
     private void Update()
@@ -59,49 +73,50 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator NextLevel()
     {
-        Movement.Stop();
-
         yield return TriggerSuccess(levelIndex);
+
+        yield return new WaitForSeconds(levelTransitionDelay);
 
         yield return HideLevel(levelIndex);
 
         levelIndex++;
         if (levelIndex >= levels.Length)
-            levelIndex = 0;
+            levelIndex = 1;
 
         yield return ShowLevel(levelIndex);
-        Movement.Startup();
 
         transitionRoutine = null;
     }
 
     private IEnumerator TriggerSuccess(int index)
     {
+        Movement.Stop();
+
         Level level = levels[index];
         float delay = level.TriggerSuccess();
         yield return new WaitForSeconds(delay);
-
-        yield return new WaitForSeconds(levelTransitionDelay);
     }
 
     private IEnumerator HideLevel(int index)
     {
+        Movement.Stop();
+
         Level level = levels[index];
         float delay = level.Hide();
         yield return new WaitForSeconds(delay);
-
-        yield return new WaitForSeconds(levelTransitionDelay);
 
         level.gameObject.SetActive(false);
     }
 
     private IEnumerator ShowLevel(int index)
     {
+        Movement.Stop();
+
         Level level = levels[index];
         level.gameObject.SetActive(true);
         float delay = level.Reveal();
         yield return new WaitForSeconds(delay);
 
-        yield return new WaitForSeconds(levelTransitionDelay);
+        Movement.Startup();
     }
 }

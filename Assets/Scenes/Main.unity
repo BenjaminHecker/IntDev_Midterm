@@ -557,8 +557,10 @@ MonoBehaviour:
   parallaxIncrement: 0.1
   alignmentThreshold: 0.4
   velocityThreshold: 0.01
+  randomOffsetMin: 50
+  randomOffsetMax: 200
   alignmentDelay: 0.5
-  levelTransitionDelay: 1
+  levelTransitionDelay: 2
   levels:
   - {fileID: 1615003327}
   - {fileID: 362832521}

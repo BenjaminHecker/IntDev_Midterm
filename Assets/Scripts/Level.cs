@@ -55,8 +55,14 @@ public class Level : MonoBehaviour
 
     public void RandomizeOffsets()
     {
-        float range = segments.Length * 100f;
-        Vector2 randomOffset = new Vector2(Random.Range(-range, range), Random.Range(-range, range));
+        float minOffset = segments.Length * GameManager.RandomOffsetMin;
+        float maxOffset = segments.Length * GameManager.RandomOffsetMax;
+        Vector2 randomOffset = new Vector2(Random.Range(minOffset, maxOffset), Random.Range(minOffset, maxOffset));
+
+        if (Random.value > 0.5f)
+            randomOffset.x *= -1;
+        if (Random.value > 0.5f)
+            randomOffset.y *= -1;
 
         foreach (Layer layer in layers)
         {
@@ -124,7 +130,19 @@ public class Level : MonoBehaviour
         Setup();
         RandomizeOffsets();
 
-        return 1f;
+        float revealDelay = 0f;
+
+        foreach (Layer layer in layers)
+        {
+            foreach (GameObject go in layer.items)
+            {
+                float delay = go.GetComponent<Parallax>().TriggerReveal();
+                if (delay > revealDelay)
+                    revealDelay = delay;
+            }
+        }
+
+        return revealDelay;
     }
 
 #if UNITY_EDITOR
