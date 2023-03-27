@@ -201,7 +201,7 @@ public class Parallax : MonoBehaviour
 
             transform.position = Vector2.Lerp(initialPos, targetPos, ratio);
             sRender.color = Color.Lerp(Color.clear, Color.white, ratio);
-            trailColor = Color.Lerp(Color.clear, trailColor, ratio);
+            trail.startColor = Color.Lerp(Color.clear, trailColor, ratio);
 
             revealAnimTimer += Time.deltaTime;
             yield return new WaitForEndOfFrame();
